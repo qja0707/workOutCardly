@@ -17,7 +17,8 @@ function CardScreen() {
     deck = shuffleDeck(deck);
 
     console.log('deck:::', deck);
-  }, []);
+    console.log("afsdlasdfljk")
+  });
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -58,7 +59,7 @@ function shuffleDeck(deck) {
   let shuffledDeck = [];
   while (deck.length > 0) {
     const randNum = Math.floor(Math.random() * deck.length);
-    shuffledDeck.push(deck[randNum]);
+    shuffledDeck.push(deck.splice(randNum,1));
   }
   return shuffledDeck;
 }
