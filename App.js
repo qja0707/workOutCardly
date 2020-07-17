@@ -47,7 +47,7 @@ function App() {
           name="CardScreen"
           component={CardScreen}
           options={{
-            title: 'My home',
+            title: 'CardScreen',
             headerStyle: {
               backgroundColor: 'white',
             },
