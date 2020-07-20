@@ -9,6 +9,8 @@ import {
   Image,
   StatusBar,
   FlatList,
+  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 
 import {SPADE, HEART, DIAMOND, CLUB} from '../../resource/CommonString';
@@ -76,83 +78,160 @@ const images = {
   ],
 };
 
+//총 카드 수, 이전 페이지에서 난이도에 따라 카드 수를 조절할 수 있음
+let totalCardNum = 52;
+
+//현재 카드 인덱스
+// let cardIndex = 0;
+
+//FlatList 컴포넌트
+let flatList;
+
 function CardScreen() {
-  useEffect(() => {
-    // setDeck(deck)
-    // console.log('afsdlasdfljk', globalDeck);
-  });
+  useEffect(() => {});
+  //현재 카드 인덱스
+  const [cardIndex, setCardIndex] = useState(0);
+
+  //파트당 운동 갯수
+  const [spade, setSpade] = useState(0); //right leg
+  const [club, setClub] = useState(0);  //left leg
+  const [heart, setHeart] = useState(0);  //squot
+  const [diamond, setDiamond] = useState(0);  //squot
+
+
+  let matchCardWithPart = {
+    spade: 0,
+    club: 0,
+    heart: 0,
+    diamond: 0,
+  };
 
   let deck = makeDeck();
   deck = shuffleDeck(deck);
 
-  const k = deck[0];
-  console.log('deck:::', deck);
-  const [globalDeck, setDeck] = useState(deck);
+  //deck 에 있는 카드를 총 카드 수로 맞춤 (뒤 카드 버림)
+  deck = deck.splice(0, totalCardNum);
+
+  const renderItem = (item) => {
+    const card = item.item;
+
+    return (
+      <View
+        style={{
+          height: '100%',
+          width: Dimensions.get('window').width,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'green',
+        }}>
+        <TouchableOpacity
+          style={{backgroundColor: 'cyan'}}
+          onPress={() => {
+            cardControl(1);
+          }}>
+          <Image
+            style={{flex: 1, resizeMode: 'contain', backgroundColor: 'blue'}}
+            source={card.cardImage}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  /**@function makeDeck
+   * @description 순서대로 카드를 생성하는 함수
+   **/
+  function makeDeck() {
+    try {
+      let deck = [];
+      for (let i = 0; i < 13; i++) {
+        let card = {type: SPADE, number: i + 1, cardImage: images.spade[i]};
+        deck.push(card);
+      }
+      for (let i = 0; i < 13; i++) {
+        let card = {type: CLUB, number: i + 1, cardImage: images.club[i]};
+        deck.push(card);
+      }
+      for (let i = 0; i < 13; i++) {
+        let card = {type: DIAMOND, number: i + 1, cardImage: images.diamond[i]};
+        deck.push(card);
+      }
+      for (let i = 0; i < 13; i++) {
+        let card = {type: HEART, number: i + 1, cardImage: images.heart[i]};
+        deck.push(card);
+      }
+      return deck;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**@function shuffleDeck
+   * @param deck 카드 오브젝트를 원소로 가지는 array
+   * @description 카드를 섞는 함수
+   **/
+  function shuffleDeck(deck) {
+    let shuffledDeck = [];
+    while (deck.length > 0) {
+      const randNum = Math.floor(Math.random() * deck.length);
+      shuffledDeck.push(deck.splice(randNum, 1)[0]);
+    }
+    return shuffledDeck;
+  }
+
+  /**@function cardControl
+   * @param offset 몇장 이동할건지 number
+   * @description 카드를 이동하는 함수
+   **/
+  function cardControl(offset) {
+    let destinationCard = cardIndex + offset
+    if(destinationCard > totalCardNum-1){
+      destinationCard = totalCardNum-1
+    }
+    
+    setCardIndex(destinationCard);
+
+    flatList.scrollToIndex({index: destinationCard});
+  }
+
+  function countPartNumber(){
+
+  }
 
   return (
     <SafeAreaView style={{flex: 1}}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Text>remaining : {totalCardNum - cardIndex}</Text>
+        <Text>오른발 : {}</Text>
+        <Text>왼발 : {}</Text>
+        <Text>스쿼트 : {}</Text>
+      </View>
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
         <FlatList
-          data={globalDeck}
+          ref={(ref) => {
+            flatList = ref;
+          }}
+          data={deck}
           renderItem={renderItem}
           keyExtractor={(card) => `${card.number}_${card.type}`}
+          horizontal={true}
+          pagingEnabled={true}
+          scrollEnabled={false}
         />
       </View>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}></View>
     </SafeAreaView>
   );
 }
 
 export default CardScreen;
-
-const renderItem = ({card}) => {
-  console.log('afds;jlk', card);
-  return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'green',
-      }}>
-      <Text>{card}</Text>
-      {/* <Image style={{flex: 1, resizeMode: 'contain'}} source={card.cardImage} /> */}
-    </View>
-  );
-};
-
-/**@function makeDeck
- * @description 순서대로 카드를 생성하는 함수
- **/
-function makeDeck() {
-  try {
-    let deck = [];
-    for (let i = 0; i < 13; i++) {
-      let card = {type: SPADE, number: i + 1, cardImage: images.spade[i]};
-      deck.push(card);
-    }
-    for (let i = 0; i < 13; i++) {
-      let card = {type: CLUB, number: i + 1, cardImage: images.club[i]};
-      deck.push(card);
-    }
-    for (let i = 0; i < 13; i++) {
-      let card = {type: DIAMOND, number: i + 1, cardImage: images.diamond[i]};
-      deck.push(card);
-    }
-    for (let i = 0; i < 13; i++) {
-      let card = {type: HEART, number: i + 1, cardImage: images.heart[i]};
-      deck.push(card);
-    }
-    return deck;
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-function shuffleDeck(deck) {
-  let shuffledDeck = [];
-  while (deck.length > 0) {
-    const randNum = Math.floor(Math.random() * deck.length);
-    shuffledDeck.push(deck.splice(randNum, 1)[0]);
-  }
-  return shuffledDeck;
-}
