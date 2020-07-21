@@ -87,34 +87,42 @@ let totalCardNum = 52;
 //FlatList 컴포넌트
 let flatList;
 
+//카드 이동 가능한지
+let cardMoveable = true;
+let moveableCountdown = 2000;
+
 function CardScreen() {
-  useEffect(() => {});
+  const [deck, setDeck] = useState(() => {
+    let deck = makeDeck();
+    deck = shuffleDeck(deck);
+    deck = deck.splice(0, totalCardNum);
+    return deck;
+  });
   //현재 카드 인덱스
   const [cardIndex, setCardIndex] = useState(0);
 
   //파트당 운동 갯수
   const [spade, setSpade] = useState(0); //right leg
-  const [club, setClub] = useState(0);  //left leg
-  const [heart, setHeart] = useState(0);  //squot
-  const [diamond, setDiamond] = useState(0);  //squot
+  const [club, setClub] = useState(0); //left leg
+  const [heart, setHeart] = useState(0); //squot
+  const [diamond, setDiamond] = useState(0); //squot
 
-
-  let matchCardWithPart = {
-    spade: 0,
-    club: 0,
-    heart: 0,
-    diamond: 0,
+  const matchCardWithPart = {
+    spade: "오른발",
+    club: "왼발",
+    heart: "스쿼트",
+    diamond: "스쿼트",
   };
 
-  let deck = makeDeck();
-  deck = shuffleDeck(deck);
+  useEffect(() => {});
+  // console.log("asdfjk;")
 
   //deck 에 있는 카드를 총 카드 수로 맞춤 (뒤 카드 버림)
-  deck = deck.splice(0, totalCardNum);
+
+  console.log('total deck :', deck);
 
   const renderItem = (item) => {
     const card = item.item;
-
     return (
       <View
         style={{
@@ -122,18 +130,21 @@ function CardScreen() {
           width: Dimensions.get('window').width,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: 'green',
         }}>
         <TouchableOpacity
-          style={{backgroundColor: 'cyan'}}
+          style={{height:"90%"}}
           onPress={() => {
-            cardControl(1);
+            if (cardMoveable) {
+              cardControl(1);
+              countPartNumber(card);
+            }
           }}>
           <Image
-            style={{flex: 1, resizeMode: 'contain', backgroundColor: 'blue'}}
+            style={{flex: 1, resizeMode: 'contain'}}
             source={card.cardImage}
           />
         </TouchableOpacity>
+        <Text style={{height:"10%"}}>{matchCardWithPart[card.type]}</Text>
       </View>
     );
   };
@@ -184,18 +195,31 @@ function CardScreen() {
    * @description 카드를 이동하는 함수
    **/
   function cardControl(offset) {
-    let destinationCard = cardIndex + offset
-    if(destinationCard > totalCardNum-1){
-      destinationCard = totalCardNum-1
+    cardMoveable = false;
+
+    let destinationCard = cardIndex + offset;
+    if (destinationCard > totalCardNum - 1) {
+      destinationCard = totalCardNum - 1;
     }
-    
+
     setCardIndex(destinationCard);
 
     flatList.scrollToIndex({index: destinationCard});
+    setTimeout(() => {
+      cardMoveable = true;
+    }, moveableCountdown);
   }
 
-  function countPartNumber(){
-
+  function countPartNumber(card) {
+    if (card.type == SPADE) {
+      setSpade(spade + card.number);
+    } else if (card.type == CLUB) {
+      setClub(club + card.number);
+    } else if (card.type == DIAMOND) {
+      setDiamond(diamond + card.number);
+    } else if (card.type == HEART) {
+      setHeart(heart + card.number);
+    }
   }
 
   return (
@@ -207,9 +231,9 @@ function CardScreen() {
           justifyContent: 'center',
         }}>
         <Text>remaining : {totalCardNum - cardIndex}</Text>
-        <Text>오른발 : {}</Text>
-        <Text>왼발 : {}</Text>
-        <Text>스쿼트 : {}</Text>
+        <Text>오른발 : {spade}</Text>
+        <Text>왼발 : {club}</Text>
+        <Text>스쿼트 : {heart + diamond}</Text>
       </View>
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
         <FlatList
@@ -229,7 +253,8 @@ function CardScreen() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-        }}></View>
+        }}>          
+        </View>
     </SafeAreaView>
   );
 }
