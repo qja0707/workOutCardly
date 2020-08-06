@@ -2,18 +2,21 @@ import React, {useEffect, useState} from 'react';
 
 import {
   SafeAreaView,
-  StyleSheet,
-  ScrollView,
   View,
   Text,
   Image,
-  StatusBar,
   FlatList,
   Dimensions,
   TouchableOpacity,
+  TouchableHighlight,
+  Modal,
+  StyleSheet,
 } from 'react-native';
 
 import {SPADE, HEART, DIAMOND, CLUB} from '../../resource/CommonString';
+
+import showToast from '../Util';
+import Util from '../Util';
 
 const images = {
   spade: [
@@ -79,7 +82,7 @@ const images = {
 };
 
 //총 카드 수, 이전 페이지에서 난이도에 따라 카드 수를 조절할 수 있음
-let totalCardNum = 52;
+let totalCardNum = 13;
 
 //현재 카드 인덱스
 // let cardIndex = 0;
@@ -89,13 +92,15 @@ let flatList;
 
 //카드 이동 가능한지
 let cardMoveable = true;
-let moveableCountdown = 2000;
+let moveableCountdown = 500;
 
-function CardScreen() {
+function CardScreen({route, navigation}) {
+  // console.log("param :", route.params)
+  totalCardNum = route.params.totalCardNum;
   const [deck, setDeck] = useState(() => {
     let deck = makeDeck();
     deck = shuffleDeck(deck);
-    deck = deck.splice(0, totalCardNum);
+    // deck = deck.splice(0, totalCardNum);
     return deck;
   });
   //현재 카드 인덱스
@@ -107,11 +112,14 @@ function CardScreen() {
   const [heart, setHeart] = useState(0); //squot
   const [diamond, setDiamond] = useState(0); //squot
 
+  //운동 종료를 위한 모달 창
+  const [modalVisible, setModalVisible] = useState(false);
+
   const matchCardWithPart = {
-    spade: "오른발",
-    club: "왼발",
-    heart: "스쿼트",
-    diamond: "스쿼트",
+    spade: '오른발',
+    club: '왼발',
+    heart: '스쿼트',
+    diamond: '스쿼트',
   };
 
   useEffect(() => {});
@@ -120,6 +128,8 @@ function CardScreen() {
   //deck 에 있는 카드를 총 카드 수로 맞춤 (뒤 카드 버림)
 
   console.log('total deck :', deck);
+
+  
 
   const renderItem = (item) => {
     const card = item.item;
@@ -132,11 +142,19 @@ function CardScreen() {
           justifyContent: 'center',
         }}>
         <TouchableOpacity
-          style={{height:"90%"}}
+          style={{height: '90%'}}
           onPress={() => {
+            console.log("cardMoveable", cardMoveable)
             if (cardMoveable) {
               cardControl(1);
               countPartNumber(card);
+              setTimeout(() => {
+                cardMoveable = true;
+              }, moveableCountdown);
+            } else {
+              console.log('asdf');              
+              
+              Util.showToast('운동하고 넘겨, 인성에 문제있어?');
             }
           }}>
           <Image
@@ -144,7 +162,7 @@ function CardScreen() {
             source={card.cardImage}
           />
         </TouchableOpacity>
-        <Text style={{height:"10%"}}>{matchCardWithPart[card.type]}</Text>
+        <Text style={{height: '10%'}}>{matchCardWithPart[card.type]}</Text>
       </View>
     );
   };
@@ -155,19 +173,19 @@ function CardScreen() {
   function makeDeck() {
     try {
       let deck = [];
-      for (let i = 0; i < 13; i++) {
+      for (let i = 0; i < totalCardNum; i++) {
         let card = {type: SPADE, number: i + 1, cardImage: images.spade[i]};
         deck.push(card);
       }
-      for (let i = 0; i < 13; i++) {
+      for (let i = 0; i < totalCardNum; i++) {
         let card = {type: CLUB, number: i + 1, cardImage: images.club[i]};
         deck.push(card);
       }
-      for (let i = 0; i < 13; i++) {
+      for (let i = 0; i < totalCardNum; i++) {
         let card = {type: DIAMOND, number: i + 1, cardImage: images.diamond[i]};
         deck.push(card);
       }
-      for (let i = 0; i < 13; i++) {
+      for (let i = 0; i < totalCardNum; i++) {
         let card = {type: HEART, number: i + 1, cardImage: images.heart[i]};
         deck.push(card);
       }
@@ -198,16 +216,17 @@ function CardScreen() {
     cardMoveable = false;
 
     let destinationCard = cardIndex + offset;
-    if (destinationCard > totalCardNum - 1) {
-      destinationCard = totalCardNum - 1;
+    if (destinationCard > deck.length - 1) {
+      // destinationCard = deck.length - 1;
+
+      setModalVisible(true);
+
+      return;
     }
 
     setCardIndex(destinationCard);
 
     flatList.scrollToIndex({index: destinationCard});
-    setTimeout(() => {
-      cardMoveable = true;
-    }, moveableCountdown);
   }
 
   function countPartNumber(card) {
@@ -222,6 +241,8 @@ function CardScreen() {
     }
   }
 
+  
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View
@@ -230,7 +251,7 @@ function CardScreen() {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Text>remaining : {totalCardNum - cardIndex}</Text>
+        <Text>remaining : {deck.length - cardIndex}</Text>
         <Text>오른발 : {spade}</Text>
         <Text>왼발 : {club}</Text>
         <Text>스쿼트 : {heart + diamond}</Text>
@@ -253,10 +274,70 @@ function CardScreen() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-        }}>          
+        }}></View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Hello World!</Text>
+
+            <TouchableHighlight
+              style={{...styles.openButton, backgroundColor: '#2196F3'}}
+              onPress={() => {
+                setModalVisible(!modalVisible);
+                navigation.navigate('HomeScreen');
+              }}>
+              <Text style={styles.textStyle}>Hide Modal</Text>
+            </TouchableHighlight>
+          </View>
         </View>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  openButton: {
+    backgroundColor: '#F194FF',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+});
 
 export default CardScreen;
