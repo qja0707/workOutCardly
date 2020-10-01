@@ -29,6 +29,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import HomeScreen from './scripts/screen/HomeScreen';
 import CardScreen from './scripts/screen/CardScreen';
+import CalendarScreen from './scripts/screen/CalendarScreen';
 
 const Stack = createStackNavigator();
 
@@ -48,6 +49,20 @@ function App() {
           component={CardScreen}
           options={{
             title: 'CardScreen',
+            headerStyle: {
+              backgroundColor: 'white',
+            },
+            headerTintColor: 'black',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="CalendarScreen"
+          component={CalendarScreen}
+          options={{
+            title: 'CalendarScreen',
             headerStyle: {
               backgroundColor: 'white',
             },

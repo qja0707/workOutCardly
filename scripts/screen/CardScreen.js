@@ -11,11 +11,12 @@ import {
   TouchableHighlight,
   Modal,
   StyleSheet,
+  Button,
 } from 'react-native';
 
 import {SPADE, HEART, DIAMOND, CLUB} from '../../resource/CommonString';
 
-import showToast from '../Util';
+// import showToast from '../Util';
 import Util from '../Util';
 
 const images = {
@@ -79,6 +80,7 @@ const images = {
     require('../../resource/images/cards/queen_of_hearts.png'),
     require('../../resource/images/cards/king_of_hearts.png'),
   ],
+  backArrow:require('../../resource/images/button/backArrow.png')
 };
 
 //총 카드 수, 이전 페이지에서 난이도에 따라 카드 수를 조절할 수 있음
@@ -115,6 +117,9 @@ function CardScreen({route, navigation}) {
   //운동 종료를 위한 모달 창
   const [modalVisible, setModalVisible] = useState(false);
 
+  //운동한 날짜
+  const date = new Date().getTime();
+
   const matchCardWithPart = {
     spade: '오른발',
     club: '왼발',
@@ -127,9 +132,26 @@ function CardScreen({route, navigation}) {
 
   //deck 에 있는 카드를 총 카드 수로 맞춤 (뒤 카드 버림)
 
-  console.log('total deck :', deck);
+  // console.log('total deck :', deck);
 
-  
+  //헤더 백 버튼 이벤트 추가
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+        style={{width:50, height:50}}
+          onPress={() => {
+            setModalVisible(true)
+            console.log('운동 종료');
+          }}>
+            <Image style={{width:50, height:50}} resizeMode={'contain'} source={images.backArrow}/>
+          </TouchableOpacity>
+      ),
+      // headerBackImage:()=>(
+
+      // )
+    });
+  }, [navigation]);
 
   const renderItem = (item) => {
     const card = item.item;
@@ -144,7 +166,7 @@ function CardScreen({route, navigation}) {
         <TouchableOpacity
           style={{height: '90%'}}
           onPress={() => {
-            console.log("cardMoveable", cardMoveable)
+            console.log('cardMoveable', cardMoveable);
             if (cardMoveable) {
               cardControl(1);
               countPartNumber(card);
@@ -152,9 +174,10 @@ function CardScreen({route, navigation}) {
                 cardMoveable = true;
               }, moveableCountdown);
             } else {
-              console.log('asdf');              
-              
+              console.log('asdf');
+
               Util.showToast('운동하고 넘겨, 인성에 문제있어?');
+              // Toast.show(toast)
             }
           }}>
           <Image
@@ -241,8 +264,6 @@ function CardScreen({route, navigation}) {
     }
   }
 
-  
-
   return (
     <SafeAreaView style={{flex: 1}}>
       <View
@@ -284,15 +305,22 @@ function CardScreen({route, navigation}) {
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Hello World!</Text>
+            {/* 저장할 갯수 출력 */}
+            {/* 같은 날짜에 갯수 데이터 있으면 플러스 */}
+
+            <Text style={styles.modalText}>{Util.getDate(date)}</Text>
+            <Text>오른발 : {spade}</Text>
+            <Text>왼발 : {club}</Text>
+            <Text>스쿼트 : {heart + diamond}</Text>
 
             <TouchableHighlight
               style={{...styles.openButton, backgroundColor: '#2196F3'}}
               onPress={() => {
                 setModalVisible(!modalVisible);
+                Util.saveRecord(date,heart+diamond,club,spade)
                 navigation.navigate('HomeScreen');
               }}>
-              <Text style={styles.textStyle}>Hide Modal</Text>
+              <Text style={styles.textStyle}>저장 후 종료</Text>
             </TouchableHighlight>
           </View>
         </View>
