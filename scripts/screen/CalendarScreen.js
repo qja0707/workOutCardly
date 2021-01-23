@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
   SafeAreaView,
@@ -11,9 +11,26 @@ import {
 } from 'react-native';
 import Util from '../Util';
 
-function HomeScreen({navigation}) {
+function CalendarScreen({navigation}) {
   //저장된 정보 로드
-  
+  const [record, setRecord] = useState('');
+  useEffect(() => {
+    getRecord().then((r) => {
+      setRecord(r);
+      console.log('return:', r);
+    });
+
+    //날짜, 갯수, 레벨로 재변환
+  }, []);
+
+  async function getRecord() {
+    try {
+      let r = await Util.loadRecord();
+      return r;
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -23,7 +40,7 @@ function HomeScreen({navigation}) {
         </View>
 
         <View style={{flex: 1}}>
-          <Text>{Util.loadRecord()}</Text>
+          <Text>{record}</Text>
         </View>
 
         <View style={{flex: 1}} />
@@ -32,4 +49,4 @@ function HomeScreen({navigation}) {
   );
 }
 
-export default HomeScreen;
+export default CalendarScreen;

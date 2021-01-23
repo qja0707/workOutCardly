@@ -13,6 +13,7 @@ import {
   StyleSheet,
   Button,
 } from 'react-native';
+import KeepAwake from 'react-native-keep-awake';
 
 import {SPADE, HEART, DIAMOND, CLUB} from '../../resource/CommonString';
 
@@ -118,7 +119,7 @@ function CardScreen({route, navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
 
   //운동한 날짜
-  const date = new Date().getTime();
+  const date = Math.floor((new Date().getTime())/(1000*3600*24))*1000*3600*24 ;
 
   const matchCardWithPart = {
     spade: '오른발',
@@ -325,6 +326,7 @@ function CardScreen({route, navigation}) {
           </View>
         </View>
       </Modal>
+      <KeepAwake/>
     </SafeAreaView>
   );
 }

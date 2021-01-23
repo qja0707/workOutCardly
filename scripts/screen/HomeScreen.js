@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 
 import {
   SafeAreaView,
@@ -8,11 +8,21 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
+  Image,
 } from 'react-native';
+import Util from '../Util';
 
 const easyCardNum = 7;
 const normalCardNum = 10;
 const hardCardNum = 13;
+
+const images = {
+  backArrow: require('../../resource/images/button/backArrow.png'),
+  easy: require('../../resource/images/easy.jpg'),
+  normal: require('../../resource/images/normal.jpg'),
+  hard: require('../../resource/images/hard.jpg'),
+  funnyHell: require('../../resource/images/funnyHell.jpg'),
+};
 
 function HomeScreen({navigation}) {
   return (
@@ -25,7 +35,12 @@ function HomeScreen({navigation}) {
             navigation.push('CardScreen', {totalCardNum: easyCardNum});
           }}>
           {/* imageView */}
-          <View style={styles.imageView}></View>
+          <View style={styles.imageView}>
+            <Image
+              style={{width: '100%', height: '100%'}}
+              source={images.easy}
+            />
+          </View>
           {/* titleView */}
           <View style={styles.titleView}>
             <Text style={styles.title}>EASY</Text>
@@ -39,7 +54,12 @@ function HomeScreen({navigation}) {
             navigation.push('CardScreen', {totalCardNum: normalCardNum});
           }}>
           {/* imageView */}
-          <View style={styles.imageView}></View>
+          <View style={styles.imageView}>
+            <Image
+              style={{width: '100%', height: '100%'}}
+              source={images.normal}
+            />
+          </View>
           {/* titleView */}
           <View style={styles.titleView}>
             <Text style={styles.title}>NORMAL</Text>
@@ -53,7 +73,12 @@ function HomeScreen({navigation}) {
             navigation.push('CardScreen', {totalCardNum: hardCardNum});
           }}>
           {/* imageView */}
-          <View style={styles.imageView}></View>
+          <View style={styles.imageView}>
+            <Image
+              style={{width: '100%', height: '100%'}}
+              source={images.hard}
+            />
+          </View>
           {/* titleView */}
           <View style={styles.titleView}>
             <Text style={styles.title}>HARD</Text>

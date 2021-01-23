@@ -37,8 +37,8 @@ function showToast(text, time = null, pos = null) {
     hideOnPress: true,
     delay: 0,
     containerStyle: cStyle,
-  }
-  Toast.show(toastOption)
+  };
+  Toast.show('운동 하고 넘겨, 인성에 문제있어?', toastOption);
 }
 
 /*
@@ -69,10 +69,10 @@ async function saveRecord(date, squot, left, right) {
   try {
     let exerciseRecord = await DefaultPreference.get(EXERCISE_RECORD);
 
-    exerciseRecord = JSON.parse(exerciseRecord);
-
-    if (!r) {
+    if (!exerciseRecord) {
       exerciseRecord = [];
+    } else {
+      exerciseRecord = JSON.parse(exerciseRecord);
     }
 
     const newRecord = {
@@ -85,19 +85,19 @@ async function saveRecord(date, squot, left, right) {
     exerciseRecord = JSON.stringify(exerciseRecord);
 
     const r = await DefaultPreference.set(EXERCISE_RECORD, exerciseRecord);
-
+    console.log('save value::', r);
     return r;
   } catch (e) {
     console.log('error during save record:', e);
   }
 }
 
-async function loadRecord(){
-  try{
+async function loadRecord() {
+  try {
     const r = await DefaultPreference.get(EXERCISE_RECORD);
-    return r
-  }catch(e){
-    console.log("e")
+    return r;
+  } catch (e) {
+    console.log('e');
   }
 }
 
@@ -115,7 +115,7 @@ function makeDataForGraph(startDate, endDate) {
 function getDate(date) {
   const d = new Date(date);
   const _year = d.getFullYear();
-  const _month = d.getMonth()+1;
+  const _month = d.getMonth() + 1;
   const _date = d.getDate();
 
   return `${_year}.${_month}.${_date}`;
