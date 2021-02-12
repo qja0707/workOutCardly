@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
 
-import {SPADE, HEART, DIAMOND, CLUB} from '../../resource/CommonString';
+import {SPADE, HEART, DIAMOND, CLUB, JOKER} from '../../resource/CommonString';
 
 // import showToast from '../Util';
 import Util from '../Util';
@@ -81,11 +81,14 @@ const images = {
     require('../../resource/images/cards/queen_of_hearts.png'),
     require('../../resource/images/cards/king_of_hearts.png'),
   ],
-  backArrow:require('../../resource/images/button/backArrow.png')
+  redJoker: require('../../resource/images/cards/red_joker.png'),
+  blackJoker: require('../../resource/images/cards/black_joker.png'),
+  backArrow: require('../../resource/images/button/backArrow.png'),
 };
 
 //총 카드 수, 이전 페이지에서 난이도에 따라 카드 수를 조절할 수 있음
 let totalCardNum = 13;
+let joker = false;
 
 //현재 카드 인덱스
 // let cardIndex = 0;
@@ -100,8 +103,9 @@ let moveableCountdown = 500;
 function CardScreen({route, navigation}) {
   // console.log("param :", route.params)
   totalCardNum = route.params.totalCardNum;
+  joker = route.params.joker;
   const [deck, setDeck] = useState(() => {
-    let deck = makeDeck();
+    let deck = makeDeck(joker);
     deck = shuffleDeck(deck);
     // deck = deck.splice(0, totalCardNum);
     return deck;
@@ -118,8 +122,11 @@ function CardScreen({route, navigation}) {
   //운동 종료를 위한 모달 창
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [jokerChance, setJokerChance] = useState(false);
+
   //운동한 날짜
-  const date = Math.floor((new Date().getTime())/(1000*3600*24))*1000*3600*24 ;
+  const date =
+    Math.floor(new Date().getTime() / (1000 * 3600 * 24)) * 1000 * 3600 * 24;
 
   const matchCardWithPart = {
     spade: '오른발',
@@ -140,13 +147,17 @@ function CardScreen({route, navigation}) {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
-        style={{width:50, height:50}}
+          style={{width: 50, height: 50}}
           onPress={() => {
-            setModalVisible(true)
+            setModalVisible(true);
             console.log('운동 종료');
           }}>
-            <Image style={{width:50, height:50}} resizeMode={'contain'} source={images.backArrow}/>
-          </TouchableOpacity>
+          <Image
+            style={{width: 50, height: 50}}
+            resizeMode={'contain'}
+            source={images.backArrow}
+          />
+        </TouchableOpacity>
       ),
       // headerBackImage:()=>(
 
@@ -169,7 +180,14 @@ function CardScreen({route, navigation}) {
           onPress={() => {
             console.log('cardMoveable', cardMoveable);
             if (cardMoveable) {
-              cardControl(1);
+              let bonus = 0;
+              if (card.type == JOKER) {
+                setJokerChance(true);
+              } else if (jokerChance) {
+                bonus = card.exNumber;
+                setJokerChance(false);
+              }
+              cardControl(1 + bonus);
               countPartNumber(card);
               setTimeout(() => {
                 cardMoveable = true;
@@ -186,7 +204,9 @@ function CardScreen({route, navigation}) {
             source={card.cardImage}
           />
         </TouchableOpacity>
-        <Text style={{height: '10%'}}>{matchCardWithPart[card.type]}</Text>
+        <Text style={{height: '10%'}}>
+          {matchCardWithPart[card.type]} {card.exNumber}
+        </Text>
       </View>
     );
   };
@@ -194,24 +214,72 @@ function CardScreen({route, navigation}) {
   /**@function makeDeck
    * @description 순서대로 카드를 생성하는 함수
    **/
-  function makeDeck() {
+  function makeDeck(joker = false) {
     try {
       let deck = [];
       for (let i = 0; i < totalCardNum; i++) {
-        let card = {type: SPADE, number: i + 1, cardImage: images.spade[i]};
+        let card = {
+          type: SPADE,
+          exNumber: i + 1,
+          number: i + 1,
+          cardImage: images.spade[i],
+        };
+        if (card.exNumber == 1 || card.exNumber > 10) {
+          card.exNumber = 11;
+        }
         deck.push(card);
       }
       for (let i = 0; i < totalCardNum; i++) {
-        let card = {type: CLUB, number: i + 1, cardImage: images.club[i]};
+        let card = {
+          type: CLUB,
+          exNumber: i + 1,
+          number: i + 1,
+          cardImage: images.club[i],
+        };
+        if (card.exNumber == 1 || card.exNumber > 10) {
+          card.exNumber = 11;
+        }
         deck.push(card);
       }
       for (let i = 0; i < totalCardNum; i++) {
-        let card = {type: DIAMOND, number: i + 1, cardImage: images.diamond[i]};
+        let card = {
+          type: DIAMOND,
+          exNumber: i + 1,
+          number: i + 1,
+          cardImage: images.diamond[i],
+        };
+        if (card.exNumber == 1 || card.exNumber > 10) {
+          card.exNumber = 11;
+        }
         deck.push(card);
       }
       for (let i = 0; i < totalCardNum; i++) {
-        let card = {type: HEART, number: i + 1, cardImage: images.heart[i]};
+        let card = {
+          type: HEART,
+          exNumber: i + 1,
+          number: i + 1,
+          cardImage: images.heart[i],
+        };
+        if (card.exNumber == 1 || card.exNumber > 10) {
+          card.exNumber = 11;
+        }
         deck.push(card);
+      }
+      if (joker) {
+        let blackJoker = {
+          type: JOKER,
+          exNumber: 0,
+          number: 0,
+          cardImage: images.blackJoker,
+        };
+        let redJoker = {
+          type: JOKER,
+          exNumber: 0,
+          number: 1,
+          cardImage: images.redJoker,
+        };
+        deck.push(blackJoker);
+        deck.push(redJoker);
       }
       return deck;
     } catch (e) {
@@ -255,13 +323,13 @@ function CardScreen({route, navigation}) {
 
   function countPartNumber(card) {
     if (card.type == SPADE) {
-      setSpade(spade + card.number);
+      setSpade(spade + card.exNumber);
     } else if (card.type == CLUB) {
-      setClub(club + card.number);
+      setClub(club + card.exNumber);
     } else if (card.type == DIAMOND) {
-      setDiamond(diamond + card.number);
+      setDiamond(diamond + card.exNumber);
     } else if (card.type == HEART) {
-      setHeart(heart + card.number);
+      setHeart(heart + card.exNumber);
     }
   }
 
@@ -318,7 +386,7 @@ function CardScreen({route, navigation}) {
               style={{...styles.openButton, backgroundColor: '#2196F3'}}
               onPress={() => {
                 setModalVisible(!modalVisible);
-                Util.saveRecord(date,heart+diamond,club,spade)
+                Util.saveRecord(date, heart + diamond, club, spade);
                 navigation.navigate('HomeScreen');
               }}>
               <Text style={styles.textStyle}>저장 후 종료</Text>
@@ -326,7 +394,7 @@ function CardScreen({route, navigation}) {
           </View>
         </View>
       </Modal>
-      <KeepAwake/>
+      <KeepAwake />
     </SafeAreaView>
   );
 }

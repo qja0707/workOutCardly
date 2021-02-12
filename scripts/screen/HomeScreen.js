@@ -70,7 +70,10 @@ function HomeScreen({navigation}) {
           style={[{backgroundColor: 'white'}, styles.cardButton]}
           onPress={() => {
             console.log('clicked work out');
-            navigation.push('CardScreen', {totalCardNum: hardCardNum});
+            navigation.push('CardScreen', {
+              totalCardNum: hardCardNum,
+              joker: true,
+            });
           }}>
           {/* imageView */}
           <View style={styles.imageView}>
