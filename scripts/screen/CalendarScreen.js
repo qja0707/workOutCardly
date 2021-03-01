@@ -16,6 +16,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Util from '../Util';
+import {L} from '../../resource/Values';
 
 const commitsData = [
   {date: '2017-01-02', count: 1},
@@ -65,11 +66,16 @@ function CalendarScreen({navigation}) {
         {/* weekly */}
         <ScrollView style={{flex: 1}} horizontal={true}>
           <StackedBarChart
-            // style={graphStyle}
+            // barPercentage={0.1}
+            // strokeWidth={5}
+            // stackedBar={5}
             data={stackedData}
             width={screenWidth}
             height={220}
-            chartConfig={chartConfig}
+            chartConfig={stackChartConfig}
+            // withHorizontalLabels={false}
+            horizontalLabelRotation={300}
+            formatYLabel={(v)=>{return v+"asdf"}}
           />
         </ScrollView>
         {/* monthly */}
@@ -108,7 +114,16 @@ function CalendarScreen({navigation}) {
 }
 
 const lineData = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June',"temp1","temp2"],
+  labels: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'temp1',
+    'temp2',
+  ],
   datasets: [
     {
       data: [20, 45, 28, 80, 99, 43],
@@ -120,13 +135,30 @@ const lineData = {
 };
 
 const stackedData = {
-  labels: ['Test1', 'Test2'],
-  legend: ['L1', 'L2', 'L3'],
+  labels: ['1', '2', '3', '4', '5', '6', '7'],
+  legend: [L.squat, `${L.left} ${L.lunge}`, `${L.right} ${L.lunge}`],
+  style: {
+    width: 100,
+  },
   data: [
     [60, 60, 60],
     [30, 30, 60],
+    [30, 30, 60],
+    [30, 30, 60],
+    [30, 30, 60],
+    [30, 30, 60],
+    [30, 30, 60],
   ],
   barColors: ['#dfe4ea', '#ced6e0', '#a4b0be'],
+};
+
+const stackChartConfig = {
+  backgroundColor: '#ffffff',
+  decimalPlaces: 2, // optional, defaults to 2dp
+  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  barPercentage: 0.5,
+  propsForHorizontalLabels:{horizontalLabelRotation:30}
 };
 
 const chartConfig = {
@@ -144,6 +176,7 @@ const chartConfig = {
     strokeWidth: '2',
     stroke: '#ffa726',
   },
+  barPercentage: 0.5,
 };
 
 export default CalendarScreen;
